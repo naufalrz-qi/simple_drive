@@ -209,7 +209,7 @@ def list_items():
     return jsonify(items)
 
 
-@app.post('/operate')
+@app.post('/operate')   
 def operate():
     data = request.get_json(force=True, silent=True) or {}
     src = norm(data.get('src', ''))

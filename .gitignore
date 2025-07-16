@@ -1,4 +1,6 @@
 
 venv/
 uploads/
+script_ps/
+
 db.json         
