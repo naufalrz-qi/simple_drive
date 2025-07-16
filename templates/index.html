@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Drive</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+
+     @font-face {
+    font-family: "Segoe Fluent Icons";
+    src: local("Segoe Fluent Icons");
+  }
+  button {
+    font-family: "Segoe Fluent Icons", Segoe UI, sans-serif;
+    font-size: 16px;
+    border: none;
+    background: none;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .controls button {
+
+    width: 36px;
+    height: 36px;
+  }
+
+  .controls button:hover {
+    background-color: #eee;
+    cursor: pointer;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+
+  .controls button::after {
+    display: none;
+  }
+
+  .controls button[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    background: #333;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 99;
+  }
+  
+  .breadcrumb {
+    font-size: 0.95em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .breadcrumb a {
+    color: #0078d4;
+    text-decoration: none;
+  }
+
+  .breadcrumb span {
+    color: #999;
+  }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f3f3;
+      margin: 0;
+      padding: 20px;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('/static/wallpaperflare.com_wallpaper.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.2;
+      z-index: -1;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-weight: 500;
+    }
+    #uploadForm, .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    input[type="file"], button, #searchInput {
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #e9e9e9;
+      cursor: pointer;
+    }
+    #uploadProgress {
+      width: 100%;
+      display: none;
+      height: 16px;
+      border-radius: 8px;
+    }
+    #uploadStatus {
+      font-family: monospace;
+      margin: 4px 0;
+    }
+    #cancelBtn {
+      display: none;
+    }
+
+    .item {
+      cursor: pointer;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    .item:hover {
+      background: rgba(0,0,0,0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+    table thead tr:first-child th:first-child {
+      border-top-left-radius: 12px;
+    }
+    table thead tr:first-child th:last-child {
+      border-top-right-radius: 12px;
+    }
+    table tbody tr:last-child td:first-child {
+      border-bottom-left-radius: 12px;
+    }
+    table tbody tr:last-child td:last-child {
+      border-bottom-right-radius: 12px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📂 My Drive</h1>
+  </div>
+
+  <div class="container">
+    <h1>Upload File</h1>
+    <form id="uploadForm">
+      <input type="file" name="file" required />
+      <button type="submit">Upload</button>
+      <button type="button" id="cancelBtn">Cancel</button>
+      <progress id="uploadProgress" value="0" max="100"></progress>
+      <div id="uploadStatus"></div>
+    </form>
+    <hr>
+    <h1>Manage File</h1>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search files/folders..." oninput="filterTable()" />
+    <button title="New Folder" onclick="promptNewFolder()"><i class="bi bi-folder-plus"></i></button>
+    <button title="Go Back" onclick="goBack()"><i class="bi bi-arrow-left-circle"></i></button>
+    <button title="Copy" onclick="doCopy()"><i class="bi bi-files"></i></button>
+    <button title="Cut" onclick="doCut()"><i class="bi bi-scissors"></i></button>
+    <button title="Paste" onclick="doPaste()"><i class="bi bi-clipboard-plus"></i></button>
+    <button title="Delete" onclick="deleteSelected()"><i class="bi bi-trash"></i></button>
+  </div>
+
+
+        <div class="breadcrumb" id="breadcrumb"></div>
+        <br>
+    <div id="statusBar" style="margin-top:10px; font-size: 0.9em; color: #555;">Ready.</div>
+    <div id="toast" style="
+      position: fixed; bottom: 20px; right: 20px; 
+      background: #333; color: #fff; padding: 10px 16px;
+      border-radius: 8px; display: none; font-size: 0.9em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1000;">
+    </div>
+    <table id="fileTable">
+      <thead><tr><th>Name</th><th>Size</th><th>Modified</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+
+
+
+
+<script>
+let currentPath = "";
+let clipboard = null;
+let selected = null;
+let currentXHR = null;
+function showToast(msg, duration = 2500) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', duration);
+}
+
+function updateStatusBar(msg) {
+  document.getElementById('statusBar').innerHTML = msg;
+}
+
+function formatBytes(bytes) {
+  if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+  if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+  if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+  return bytes + ' B';
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+
+  if (["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"].includes(ext)) 
+    return '<i class="bi bi-file-image"></i>';
+  if (["mp3", "wav", "flac", "aac"].includes(ext)) 
+    return '<i class="bi bi-file-earmark-music"></i>';
+  if (["mp4", "avi", "mkv", "mov", "wmv"].includes(ext)) 
+    return '<i class="bi bi-file-earmark-play"></i>';
+  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) 
+    return '<i class="bi bi-file-zip"></i>';
+  if (["txt", "md", "log"].includes(ext)) 
+    return '<i class="bi bi-file-text"></i>';
+  if (["xls", "xlsx", "csv"].includes(ext)) 
+    return '<i class="bi bi-file-earmark-spreadsheet"></i>';
+  if (["pdf"].includes(ext)) 
+    return '<i class="bi bi-file-earmark-pdf"></i>';
+  if (["doc", "docx"].includes(ext)) 
+    return '<i class="bi bi-file-earmark-word"></i>';
+  if (["html", "js", "py", "java", "c", "cpp", "cs", "php"].includes(ext)) 
+    return '<i class="bi bi-file-code"></i>';
+
+  return '<i class="bi bi-file-earmark"></i>';
+}
+
+
+  function downloadFile(path) {
+      const url = `/download/${encodeURIComponent(path)}`;
+      window.open(url, '_blank');
+  }
+function goBack() {
+  if (!currentPath) return; // Already at root
+  const parts = currentPath.replace(/\\/g, "/").split('/').filter(Boolean);
+  parts.pop(); // Remove last segment
+  loadFolder(parts.join('/')); // Will be "" if already at root
+}
+
+
+
+let historyStack = [];
+
+async function loadFolder(path = "", saveHistory = true) {
+  if (saveHistory && currentPath) {
+    historyStack.push(currentPath);
+  }
+  currentPath = path;
+  const res = await fetch(`/items?path=${encodeURIComponent(path)}`);
+  if (!res.ok) {
+    const err = await res.json();
+    alert(err.error || 'Error loading folder');
+    return;
+  }
+  const data = await res.json();
+  const tbody = document.querySelector("#fileTable tbody");
+  tbody.innerHTML = "";
+  data.forEach(f => {
+    const tr = document.createElement("tr");
+    tr.className = "item";
+    tr.dataset.name = f.name.toLowerCase();
+    tr.onclick = () => {
+      selected = { ...f, path: f.path.replace(/\\/g, "/") };
+      document.querySelectorAll('.item').forEach(i => i.style.background='');
+      tr.style.background = '#eef';
+    };
+
+    tr.ondblclick = () => {
+      if (f.is_folder) loadFolder(f.path.replace(/\\/g, "/"));
+    };
+
+    const icon = f.is_folder ? '<i class="bi bi-folder-fill"></i>' : getFileIcon(f.name);
+    const downloadBtn = !f.is_folder ? `<button title="Download" onclick="event.stopPropagation(); downloadFile('${f.path.replace(/\\/g, "/")}')"><i class="bi bi-download"></i></button>` : '';
+    tr.innerHTML = `
+      <td>${icon} ${f.name}</td>
+      <td>${f.is_folder ? '-' : formatBytes(f.size)}</td>
+      <td>${new Date(f.modified).toLocaleString()}</td>
+      <td>${downloadBtn}</td>
+    `;
+
+
+
+
+
+    tbody.appendChild(tr);
+  });
+  renderBreadcrumb(path);
+}
+
+document.addEventListener('keydown', function(e) {
+  // Ignore input fields
+  const active = document.activeElement;
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+
+  if (e.ctrlKey && e.key === 'c') {
+    e.preventDefault();
+    doCopy();
+    showToast("Copied");
+    updateStatusBar("Copied | <i class='bi bi-files'></i> " + (selected?.name || ""));
+  }
+
+  if (e.ctrlKey && e.key === 'x') {
+    e.preventDefault();
+    doCut();
+    showToast("Cut");
+    updateStatusBar("Cutted | <i class='bi bi-scissors'></i>  " + (selected?.name || ""));
+  }
+
+  if (e.ctrlKey && e.key === 'v') {
+    e.preventDefault();
+    doPaste();
+    showToast("Pasted");
+    updateStatusBar("Pasted to  | <i class='bi bi-clipboard-plus'></i> " + currentPath);
+  }
+
+  if (e.key === 'Delete') {
+    e.preventDefault();
+    deleteSelected();
+  }
+
+  if (e.key === 'Backspace') {
+    e.preventDefault();
+    goBack();
+  }
+});
+
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll("#fileTable tbody .item").forEach(row => {
+    const name = row.dataset.name || "";
+    row.style.display = name.includes(q) ? "" : "none";
+  });
+}
+
+function renderBreadcrumb(path) {
+  const crumbs = path.replace(/\\/g, "/").split('/').filter(Boolean);
+  let html = '<a href="#" onclick="loadFolder(\'\')">Home</a>';
+  let acc = "";
+  for (const c of crumbs) {
+    acc += "/" + c;
+    html += ` <span>›</span> <a href="#" onclick="loadFolder('${acc.slice(1)}')">${c}</a>`;
+  }
+  document.getElementById("breadcrumb").innerHTML = html;
+}
+
+
+
+
+function promptNewFolder() {
+  const name = prompt("Folder name?");
+  if (!name) return;
+  fetch("/folders", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({path: currentPath, name})
+  }).then(res => res.json()).then(() => loadFolder(currentPath));
+}
+
+function doCopy() {
+  if (!selected) return alert("Select item first");
+  clipboard = { src: selected.path, op: "copy" };
+  updateStatusBar("Copied " + selected.name);
+}
+
+function doCut() {
+  if (!selected) return alert("Select item first");
+  clipboard = { src: selected.path, op: "cut" };
+  updateStatusBar("Cutted " + selected.name);
+}
+
+function doPaste() {
+  if (!clipboard) return alert("Nothing to paste");
+  fetch("/operate", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ ...clipboard, dest: currentPath })
+  }).then(() => {
+    clipboard = null;
+    loadFolder(currentPath);
+  });
+  updateStatusBar("Pasted " + selected.name);
+}
+
+function deleteSelected() {
+  if (!selected) return;
+  if (!confirm(`Delete ${selected.name}?`)) return;
+  fetch(`/items?path=${encodeURIComponent(selected.path)}`, {
+    method: "DELETE"
+  }).then(() => loadFolder(currentPath));
+  updateStatusBar("Deleted " + selected.name);
+}
+
+const form = document.getElementById('uploadForm');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const file = form.file.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("path", currentPath);
+
+  const xhr = new XMLHttpRequest();
+  currentXHR = xhr;
+  xhr.open("POST", "/upload", true);
+
+  const progress = document.getElementById('uploadProgress');
+  const status = document.getElementById('uploadStatus');
+  const cancelBtn = document.getElementById('cancelBtn');
+  progress.style.display = 'block';
+  cancelBtn.style.display = 'inline';
+  progress.value = 0;
+
+  let lastLoaded = 0;
+  let lastTime = performance.now();
+
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) {
+      const percent = e.loaded / e.total * 100;
+      progress.value = percent;
+      const now = performance.now();
+      const deltaTime = (now - lastTime) / 1000;
+      const deltaBytes = e.loaded - lastLoaded;
+      const speed = deltaBytes / deltaTime / 1048576;
+      status.textContent = `Progress: ${percent.toFixed(1)}% | ${formatBytes(e.loaded)} of ${formatBytes(e.total)} | Speed: ${speed.toFixed(2)} MB/s`;
+      lastLoaded = e.loaded;
+      lastTime = now;
+    }
+  };
+
+  xhr.onload = function() {
+    progress.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    status.textContent = xhr.status === 201 ? 'Upload complete!' : 'Upload failed!';
+    loadFolder(currentPath);
+    form.reset();
+  };
+
+  xhr.onerror = function() {
+    progress.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    status.textContent = 'Upload error!';
+  };
+
+  xhr.send(formData);
+});
+
+document.getElementById('cancelBtn').onclick = () => {
+  if (currentXHR) currentXHR.abort();
+  document.getElementById('uploadProgress').style.display = 'none';
+  document.getElementById('cancelBtn').style.display = 'none';
+  document.getElementById('uploadStatus').textContent = 'Upload canceled';
+};
+
+loadFolder();
+</script>
+</body>
+</html>
