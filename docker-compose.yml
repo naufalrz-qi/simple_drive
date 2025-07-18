@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  simpledrive:
+    build: ./
+    environment:
+      - UPLOAD_DIR=/app/uploads    # Atau pakai "image: simple-drive-image" kalau kamu sudah punya image-nya
+    ports:
+      - "80:80"
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped

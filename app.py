@@ -153,7 +153,7 @@ exts = os.getenv("ALLOWED_EXTENSIONS", "")
 ALLOWED_EXT = {e.strip().lower() for e in exts.split(',') if e.strip()}
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH", 200 * 1024 * 1024))
+# app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTENT_LENGTH", 200 * 1024 * 1024))
 
 # ---------------------- Helpers --------------------------- #
 
