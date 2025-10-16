@@ -186,7 +186,7 @@
   <div class="container">
     <h1>Upload File</h1>
     <form id="uploadForm">
-      <input type="file" name="file" required />
+      <input type="file" name="file" required multiple />
       <button type="submit">Upload</button>
       <button type="button" id="cancelBtn">Cancel</button>
       <progress id="uploadProgress" value="0" max="100"></progress>
@@ -438,60 +438,147 @@ function deleteSelected() {
   updateStatusBar("Deleted " + selected.name);
 }
 
+// === multi-file upload handler (sequential with per-file progress) ===
 const form = document.getElementById('uploadForm');
-form.addEventListener('submit', (e) => {
+const progress = document.getElementById('uploadProgress');
+const status = document.getElementById('uploadStatus');
+const cancelBtn = document.getElementById('cancelBtn');
+
+let activeXhrs = []; // array of XHRs for cancellation
+
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const file = form.file.files[0];
-  if (!file) return;
+  const files = form.file.files;
+  if (!files || files.length === 0) return;
 
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("path", currentPath);
-
-  const xhr = new XMLHttpRequest();
-  currentXHR = xhr;
-  xhr.open("POST", "/upload", true);
-
-  const progress = document.getElementById('uploadProgress');
-  const status = document.getElementById('uploadStatus');
-  const cancelBtn = document.getElementById('cancelBtn');
+  // UI setup
   progress.style.display = 'block';
-  cancelBtn.style.display = 'inline';
   progress.value = 0;
+  cancelBtn.style.display = 'inline';
+  status.innerHTML = ''; // will contain per-file lines
+  activeXhrs = [];
 
-  let lastLoaded = 0;
-  let lastTime = performance.now();
+  // container for per-file progress elements
+  const fileStatusList = document.createElement('div');
+  fileStatusList.style.marginTop = '8px';
+  status.appendChild(fileStatusList);
 
-  xhr.upload.onprogress = function(e) {
-    if (e.lengthComputable) {
-      const percent = e.loaded / e.total * 100;
-      progress.value = percent;
-      const now = performance.now();
-      const deltaTime = (now - lastTime) / 1000;
-      const deltaBytes = e.loaded - lastLoaded;
-      const speed = deltaBytes / deltaTime / 1048576;
-      status.textContent = `Progress: ${percent.toFixed(1)}% | ${formatBytes(e.loaded)} of ${formatBytes(e.total)} | Speed: ${speed.toFixed(2)} MB/s`;
-      lastLoaded = e.loaded;
-      lastTime = now;
+  // Upload files one-by-one (sequential) so we can show per-file progress easily.
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const fileLine = document.createElement('div');
+    fileLine.style.margin = '6px 0';
+    fileLine.innerHTML = `<strong>${file.name}</strong> — <span class="fs">Queued</span>`;
+    const perProgress = document.createElement('progress');
+    perProgress.max = 100;
+    perProgress.value = 0;
+    perProgress.style.display = 'block';
+    perProgress.style.width = '100%';
+    fileLine.appendChild(perProgress);
+    fileStatusList.appendChild(fileLine);
+
+    try {
+      await uploadSingleFile(file, perProgress, fileLine, i, files.length);
+    } catch (err) {
+      // uploadSingleFile rejects on abort or fatal error
+      fileLine.querySelector('.fs').textContent = err === 'aborted' ? 'Canceled' : 'Error';
     }
-  };
 
-  xhr.onload = function() {
-    progress.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    status.textContent = xhr.status === 201 ? 'Upload complete!' : 'Upload failed!';
-    loadFolder(currentPath);
-    form.reset();
-  };
+    // update overall progress (simple average of file progresses)
+    const totalPercent = Array.from(fileStatusList.querySelectorAll('progress'))
+      .reduce((acc, p) => acc + Number(p.value), 0) / files.length;
+    progress.value = totalPercent;
+  }
 
-  xhr.onerror = function() {
-    progress.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    status.textContent = 'Upload error!';
-  };
-
-  xhr.send(formData);
+  // done
+  progress.style.display = 'none';
+  cancelBtn.style.display = 'none';
+  activeXhrs = [];
+  // reload current folder to show uploaded files
+  loadFolder(currentPath);
+  // clear file input
+  form.reset();
 });
+
+function uploadSingleFile(file, perProgressEl, fileLine, index, total) {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('path', currentPath || '');
+
+    const xhr = new XMLHttpRequest();
+    activeXhrs.push(xhr);
+
+    xhr.open('POST', '/upload', true);
+
+    let lastLoaded = 0;
+    let lastTime = performance.now();
+
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable) {
+        const percent = e.loaded / e.total * 100;
+        perProgressEl.value = percent;
+        // speed estimate per-file
+        const now = performance.now();
+        const deltaTime = (now - lastTime) / 1000;
+        const deltaBytes = e.loaded - lastLoaded;
+        const speed = deltaTime > 0 ? (deltaBytes / deltaTime / 1048576) : 0;
+        fileLine.querySelector('.fs').textContent = `Uploading: ${percent.toFixed(1)}% | ${formatBytes(e.loaded)} of ${formatBytes(e.total)} | ${speed.toFixed(2)} MB/s`;
+        lastLoaded = e.loaded;
+        lastTime = now;
+      }
+    };
+
+    xhr.onload = function() {
+      // remove xhr from active list
+      const idx = activeXhrs.indexOf(xhr);
+      if (idx >= 0) activeXhrs.splice(idx, 1);
+
+      try {
+        const res = JSON.parse(xhr.responseText || '{}');
+        if (xhr.status === 201 || xhr.status === 200) {
+          perProgressEl.value = 100;
+          fileLine.querySelector('.fs').textContent = 'Done';
+          resolve(res);
+        } else {
+          fileLine.querySelector('.fs').textContent = res.error || 'Upload failed';
+          reject('error');
+        }
+      } catch (err) {
+        fileLine.querySelector('.fs').textContent = 'Upload failed (invalid response)';
+        reject('error');
+      }
+    };
+
+    xhr.onerror = function() {
+      const idx = activeXhrs.indexOf(xhr);
+      if (idx >= 0) activeXhrs.splice(idx, 1);
+      fileLine.querySelector('.fs').textContent = 'Upload error';
+      reject('error');
+    };
+
+    xhr.onabort = function() {
+      const idx = activeXhrs.indexOf(xhr);
+      if (idx >= 0) activeXhrs.splice(idx, 1);
+      fileLine.querySelector('.fs').textContent = 'Canceled';
+      reject('aborted');
+    };
+
+    xhr.send(formData);
+  });
+}
+
+// Cancel whole batch
+cancelBtn.onclick = () => {
+  if (!activeXhrs.length) return;
+  activeXhrs.forEach(x => {
+    try { x.abort(); } catch (e) {}
+  });
+  activeXhrs = [];
+  progress.style.display = 'none';
+  cancelBtn.style.display = 'none';
+  document.getElementById('uploadStatus').textContent = 'Upload canceled';
+};
 
 document.getElementById('cancelBtn').onclick = () => {
   if (currentXHR) currentXHR.abort();
