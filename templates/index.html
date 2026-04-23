@@ -2,591 +2,783 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Drive</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Drive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-
-     @font-face {
-    font-family: "Segoe Fluent Icons";
-    src: local("Segoe Fluent Icons");
-  }
-  button {
-    font-family: "Segoe Fluent Icons", Segoe UI, sans-serif;
-    font-size: 16px;
-    border: none;
-    background: none;
-    padding: 8px;
-    border-radius: 8px;
-    transition: background 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .controls button {
-
-    width: 36px;
-    height: 36px;
-  }
-
-  .controls button:hover {
-    background-color: #eee;
-    cursor: pointer;
-  }
-
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: center;
-  }
-
-  .controls button::after {
-    display: none;
-  }
-
-  .controls button[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    background: #333;
-    color: #fff;
-    font-size: 11px;
-    padding: 3px 6px;
-    border-radius: 4px;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    z-index: 99;
-  }
-  
-  .breadcrumb {
-    font-size: 0.95em;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-  }
-
-  .breadcrumb a {
-    color: #0078d4;
-    text-decoration: none;
-  }
-
-  .breadcrumb span {
-    color: #999;
-  }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f3f3f3;
-      margin: 0;
-      padding: 20px;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-image: url('/static/wallpaperflare.com_wallpaper.jpg');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.2;
-      z-index: -1;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-weight: 500;
-    }
-    #uploadForm, .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-    input[type="file"], button, #searchInput {
-      padding: 6px 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: #fff;
-      box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #e9e9e9;
-      cursor: pointer;
-    }
-    #uploadProgress {
-      width: 100%;
-      display: none;
-      height: 16px;
-      border-radius: 8px;
-    }
-    #uploadStatus {
-      font-family: monospace;
-      margin: 4px 0;
-    }
-    #cancelBtn {
-      display: none;
-    }
-
-    .item {
-      cursor: pointer;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-      border-radius: 6px;
-    }
-    .item:hover {
-      background: rgba(0,0,0,0.05);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
-    }
-    table thead tr:first-child th:first-child {
-      border-top-left-radius: 12px;
-    }
-    table thead tr:first-child th:last-child {
-      border-top-right-radius: 12px;
-    }
-    table tbody tr:last-child td:first-child {
-      border-bottom-left-radius: 12px;
-    }
-    table tbody tr:last-child td:last-child {
-      border-bottom-right-radius: 12px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background: #f9f9f9;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>📂 My Drive</h1>
-  </div>
+  <div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div>
 
-  <div class="container">
-    <h1>Upload File</h1>
-    <form id="uploadForm">
-      <input type="file" name="file" required multiple />
-      <button type="submit">Upload</button>
-      <button type="button" id="cancelBtn">Cancel</button>
-      <progress id="uploadProgress" value="0" max="100"></progress>
-      <div id="uploadStatus"></div>
-    </form>
-    <hr>
-    <h1>Manage File</h1>
-
-  <div class="controls">
-    <input type="text" id="searchInput" placeholder="Search files/folders..." oninput="filterTable()" />
-    <button title="New Folder" onclick="promptNewFolder()"><i class="bi bi-folder-plus"></i></button>
-    <button title="Go Back" onclick="goBack()"><i class="bi bi-arrow-left-circle"></i></button>
-    <button title="Copy" onclick="doCopy()"><i class="bi bi-files"></i></button>
-    <button title="Cut" onclick="doCut()"><i class="bi bi-scissors"></i></button>
-    <button title="Paste" onclick="doPaste()"><i class="bi bi-clipboard-plus"></i></button>
-    <button title="Delete" onclick="deleteSelected()"><i class="bi bi-trash"></i></button>
-  </div>
-
-
-        <div class="breadcrumb" id="breadcrumb"></div>
-        <br>
-    <div id="statusBar" style="margin-top:10px; font-size: 0.9em; color: #555;">Ready.</div>
-    <div id="toast" style="
-      position: fixed; bottom: 20px; right: 20px; 
-      background: #333; color: #fff; padding: 10px 16px;
-      border-radius: 8px; display: none; font-size: 0.9em;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 1000;">
+  <!-- ── Top Bar ── -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="logo-icon"><i class="bi bi-cloud-fill"></i></div>
+      <h1>Simple Drive</h1>
     </div>
-    <table id="fileTable">
-      <thead><tr><th>Name</th><th>Size</th><th>Modified</th><th>Action</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <div class="topbar-actions">
+      <div class="user-badge">
+        <i class="bi bi-person-circle"></i>
+        <strong>{{ user.username }}</strong>
+        <span class="role-tag">{{ user.role }}</span>
+      </div>
+      <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        <i class="bi bi-sun-fill" id="themeIconLight"></i>
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <i class="bi bi-moon-fill" id="themeIconDark"></i>
+      </div>
+      <button class="btn btn-icon" title="Change Password" onclick="openModal('passwordModal')"><i class="bi bi-key"></i></button>
+      {% if user.role == 'admin' %}
+      <button class="btn btn-icon" title="Manage Users" onclick="openModal('adminModal'); loadUsers()"><i class="bi bi-people"></i></button>
+      {% endif %}
+      <a href="{{ url_for('logout') }}"><button class="btn btn-icon btn-danger" title="Logout"><i class="bi bi-box-arrow-right"></i></button></a>
+    </div>
+  </div>
 
+  <!-- ── Toolbar ── -->
+  <div class="toolbar">
+    <button class="btn btn-icon" title="Back" onclick="goBack()"><i class="bi bi-arrow-left"></i></button>
+    <button class="btn btn-icon" title="Refresh" onclick="loadFolder(currentPath,false)"><i class="bi bi-arrow-clockwise"></i></button>
+    <div class="separator"></div>
+    <button class="btn" onclick="promptNewFolder()"><i class="bi bi-folder-plus"></i> New Folder</button>
+    <label class="btn btn-primary" style="cursor:pointer">
+      <i class="bi bi-cloud-upload"></i> Upload
+      <input type="file" id="fileInput" multiple hidden>
+    </label>
+    <div class="separator"></div>
+    <button class="btn btn-icon" title="Copy" onclick="doCopy()"><i class="bi bi-files"></i></button>
+    <button class="btn btn-icon" title="Cut" onclick="doCut()"><i class="bi bi-scissors"></i></button>
+    <button class="btn btn-icon" title="Paste" onclick="doPaste()"><i class="bi bi-clipboard-check"></i></button>
+    <button class="btn btn-icon btn-danger" title="Delete" onclick="deleteSelected()"><i class="bi bi-trash3"></i></button>
+    <div class="separator"></div>
+    <button class="btn" title="Select All (Ctrl+A)" onclick="selectAll()"><i class="bi bi-check2-square"></i> Select All</button>
+    <div class="separator"></div>
+    <!-- Filter by type -->
+    <select id="filterType" class="toolbar-select" onchange="applyFilterSort()" title="Filter by type">
+      <option value="all">All Files</option>
+      <option value="folder">📁 Folders</option>
+      <option value="image">🖼️ Images</option>
+      <option value="document">📄 Documents</option>
+      <option value="archive">📦 Archives</option>
+      <option value="code">💻 Code</option>
+      <option value="media">🎬 Media</option>
+    </select>
+    <!-- Sort -->
+    <select id="sortBy" class="toolbar-select" onchange="applyFilterSort()" title="Sort by">
+      <option value="name-asc">Name ↑</option>
+      <option value="name-desc">Name ↓</option>
+      <option value="size-asc">Size ↑</option>
+      <option value="size-desc">Size ↓</option>
+      <option value="date-asc">Date ↑</option>
+      <option value="date-desc">Date ↓</option>
+    </select>
+    <!-- View toggle -->
+    <button class="btn btn-icon" id="viewToggle" title="Toggle Grid/List" onclick="toggleView()"><i class="bi bi-grid"></i></button>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" id="searchInput" placeholder="Search files..." oninput="applyFilterSort()">
+    </div>
+  </div>
 
+  <!-- ── Breadcrumb ── -->
+  <div class="breadcrumb-bar" id="breadcrumb"></div>
 
+  <!-- ── File List ── -->
+  <div class="file-area" id="fileArea">
+    <div class="file-header" id="fileHeader">
+      <div>Name</div><div>Size</div><div>Modified</div><div>Actions</div>
+    </div>
+    <div id="fileList"></div>
+  </div>
 
+  <!-- ── Drop Overlay ── -->
+  <div class="drop-overlay" id="dropOverlay">
+    <div class="drop-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+    <p>Drop files here to upload</p>
+  </div>
+
+  <!-- ── Upload Panel ── -->
+  <div class="upload-panel" id="uploadPanel">
+    <div class="upload-panel-header">
+      <h3><i class="bi bi-cloud-arrow-up"></i> Uploading...</h3>
+      <button class="btn btn-sm btn-danger" onclick="cancelAllUploads()"><i class="bi bi-x-lg"></i> Cancel</button>
+    </div>
+    <div id="uploadList"></div>
+  </div>
+
+  <!-- ── Context Menu ── -->
+  <div class="ctx-menu" id="ctxMenu" onmousedown="event.stopPropagation()">
+    <div class="ctx-item" onmousedown="ctxAction(doCopy)"><i class="bi bi-files"></i>Copy</div>
+    <div class="ctx-item" onmousedown="ctxAction(doCut)"><i class="bi bi-scissors"></i>Cut</div>
+    <div class="ctx-item" onmousedown="ctxAction(doPaste)"><i class="bi bi-clipboard-check"></i>Paste</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item" onmousedown="ctxAction(downloadSelected)"><i class="bi bi-download"></i>Download</div>
+    <div class="ctx-item" onmousedown="ctxAction(renameSelected)"><i class="bi bi-pencil"></i>Rename</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item danger" onmousedown="ctxAction(deleteSelected)"><i class="bi bi-trash3"></i>Delete</div>
+  </div>
+
+  <!-- ── Password Modal ── -->
+  <div class="modal-overlay" id="passwordModal">
+    <div class="modal">
+      <div class="modal-header"><h2><i class="bi bi-key"></i> Change Password</h2><button class="modal-close" onclick="closeModal('passwordModal')">&times;</button></div>
+      <form onsubmit="changePassword(event)">
+        <div class="form-group"><label class="form-label">Current Password</label><input type="password" id="oldPassword" class="form-input" placeholder="Enter current password" required></div>
+        <div class="form-group"><label class="form-label">New Password</label><input type="password" id="newPasswordField" class="form-input" placeholder="Enter new password" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Change Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Admin Modal ── -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal wide">
+      <div class="modal-header"><h2><i class="bi bi-people"></i> User Management</h2><button class="modal-close" onclick="closeModal('adminModal')">&times;</button></div>
+      <form onsubmit="createUser(event)" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0"><label class="form-label">Username</label><input type="text" id="newUsername" class="form-input" placeholder="Username" required></div>
+        <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0"><label class="form-label">Password</label><input type="password" id="newUserPass" class="form-input" placeholder="Password" required></div>
+        <div class="form-group" style="width:100px;margin-bottom:0"><label class="form-label">Role</label><select id="newRole" class="form-select"><option value="user">User</option><option value="admin">Admin</option></select></div>
+        <button type="submit" class="btn btn-primary" style="height:40px"><i class="bi bi-plus-lg"></i> Add</button>
+      </form>
+      <table class="user-table" id="userTable">
+        <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>API Key</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── New Folder Modal ── -->
+  <div class="modal-overlay" id="folderModal">
+    <div class="modal" style="max-width:380px">
+      <div class="modal-header"><h2><i class="bi bi-folder-plus"></i> New Folder</h2><button class="modal-close" onclick="closeModal('folderModal')">&times;</button></div>
+      <form onsubmit="createFolder(event)">
+        <div class="form-group"><label class="form-label">Folder Name</label><input type="text" id="folderName" class="form-input" placeholder="Enter folder name" required autofocus></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Create</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Rename Modal ── -->
+  <div class="modal-overlay" id="renameModal">
+    <div class="modal" style="max-width:380px">
+      <div class="modal-header"><h2><i class="bi bi-pencil"></i> Rename</h2><button class="modal-close" onclick="closeModal('renameModal')">&times;</button></div>
+      <form onsubmit="submitRename(event)">
+        <div class="form-group"><label class="form-label">New Name</label><input type="text" id="renameInput" class="form-input" placeholder="Enter new name" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">Rename</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Toast Container ── -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ── Status Bar ── -->
+  <div class="statusbar">
+    <span id="statusText">Ready</span>
+    <span id="itemCount"></span>
+  </div>
 
 <script>
+/* ═══════════════════ STATE ═══════════════════ */
 let currentPath = "";
 let clipboard = null;
-let selected = null;
-let currentXHR = null;
-function showToast(msg, duration = 2500) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.style.display = 'block';
-  setTimeout(() => toast.style.display = 'none', duration);
+let selected = null;       // last clicked item (for context menu, rename, etc.)
+let selectedItems = [];    // multi-select array [{name,path,is_folder,...}]
+let lastClickIndex = -1;   // for shift+click range select
+let activeXhrs = [];
+let allItems = [];
+let renderedItems = [];    // currently rendered (filtered/sorted) items
+
+/* ═══════════════════ HELPERS ═══════════════════ */
+function formatBytes(b){if(b>=1073741824)return(b/1073741824).toFixed(2)+' GB';if(b>=1048576)return(b/1048576).toFixed(2)+' MB';if(b>=1024)return(b/1024).toFixed(2)+' KB';return b+' B';}
+
+function getFileClass(name){
+  const e=name.split('.').pop().toLowerCase();
+  if(["jpg","jpeg","png","gif","bmp","svg","webp"].includes(e))return"file-img";
+  if(["zip","rar","7z","tar","gz","bak"].includes(e))return"file-archive";
+  if(["doc","docx","pdf","xls","xlsx","csv","txt","md","log"].includes(e))return"file-doc";
+  if(["html","js","py","java","c","cpp","cs","php","json","xml","css"].includes(e))return"file-code";
+  if(["mp3","wav","flac","aac","mp4","avi","mkv","mov","wmv"].includes(e))return"file-media";
+  return"file-default";
+}
+function getFileIcon(name){
+  const e=name.split('.').pop().toLowerCase();
+  if(["jpg","jpeg","png","gif","bmp","svg","webp"].includes(e))return"bi-file-image";
+  if(["zip","rar","7z","tar","gz","bak"].includes(e))return"bi-file-zip";
+  if(["pdf"].includes(e))return"bi-file-earmark-pdf";
+  if(["doc","docx"].includes(e))return"bi-file-earmark-word";
+  if(["xls","xlsx","csv"].includes(e))return"bi-file-earmark-spreadsheet";
+  if(["txt","md","log"].includes(e))return"bi-file-text";
+  if(["html","js","py","java","c","cpp","cs","php","json","xml","css"].includes(e))return"bi-file-code";
+  if(["mp3","wav","flac","aac"].includes(e))return"bi-file-earmark-music";
+  if(["mp4","avi","mkv","mov","wmv"].includes(e))return"bi-file-earmark-play";
+  return"bi-file-earmark";
 }
 
-function updateStatusBar(msg) {
-  document.getElementById('statusBar').innerHTML = msg;
+/* ═══════════════════ TOAST ═══════════════════ */
+function showToast(msg, type='info'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  const icons={success:'bi-check-circle',error:'bi-exclamation-circle',info:'bi-info-circle'};
+  t.innerHTML=`<i class="bi ${icons[type]||icons.info}"></i> ${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.animation='toastOut 0.3s forwards';setTimeout(()=>t.remove(),300);},3000);
 }
 
-function formatBytes(bytes) {
-  if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
-  if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
-  if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
-  return bytes + ' B';
+/* ═══════════════════ MODAL ═══════════════════ */
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');});});
+
+/* ═══════════════════ FOLDER NAV ═══════════════════ */
+async function loadFolder(path="",saveHistory=true){
+  currentPath=path;
+  selected=null; selectedItems=[]; lastClickIndex=-1;
+  const res=await fetch(`/items?path=${encodeURIComponent(path)}`);
+  if(!res.ok){showToast('Error loading folder','error');return;}
+  allItems=await res.json();
+  renderBreadcrumb(path);
+  applyViewMode();
+  applyFilterSort();
+  document.getElementById('statusText').textContent='Ready';
 }
 
-function getFileIcon(name) {
-  const ext = name.split('.').pop().toLowerCase();
-
-  if (["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"].includes(ext)) 
-    return '<i class="bi bi-file-image"></i>';
-  if (["mp3", "wav", "flac", "aac"].includes(ext)) 
-    return '<i class="bi bi-file-earmark-music"></i>';
-  if (["mp4", "avi", "mkv", "mov", "wmv"].includes(ext)) 
-    return '<i class="bi bi-file-earmark-play"></i>';
-  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) 
-    return '<i class="bi bi-file-zip"></i>';
-  if (["txt", "md", "log"].includes(ext)) 
-    return '<i class="bi bi-file-text"></i>';
-  if (["xls", "xlsx", "csv"].includes(ext)) 
-    return '<i class="bi bi-file-earmark-spreadsheet"></i>';
-  if (["pdf"].includes(ext)) 
-    return '<i class="bi bi-file-earmark-pdf"></i>';
-  if (["doc", "docx"].includes(ext)) 
-    return '<i class="bi bi-file-earmark-word"></i>';
-  if (["html", "js", "py", "java", "c", "cpp", "cs", "php"].includes(ext)) 
-    return '<i class="bi bi-file-code"></i>';
-
-  return '<i class="bi bi-file-earmark"></i>';
-}
-
-
-  function downloadFile(path) {
-      const url = `/download/${encodeURIComponent(path)}`;
-      window.open(url, '_blank');
-  }
-function goBack() {
-  if (!currentPath) return; // Already at root
-  const parts = currentPath.replace(/\\/g, "/").split('/').filter(Boolean);
-  parts.pop(); // Remove last segment
-  loadFolder(parts.join('/')); // Will be "" if already at root
-}
-
-
-
-let historyStack = [];
-
-async function loadFolder(path = "", saveHistory = true) {
-  if (saveHistory && currentPath) {
-    historyStack.push(currentPath);
-  }
-  currentPath = path;
-  const res = await fetch(`/items?path=${encodeURIComponent(path)}`);
-  if (!res.ok) {
-    const err = await res.json();
-    alert(err.error || 'Error loading folder');
+function renderFiles(data){
+  renderedItems = data;
+  const list=document.getElementById('fileList');
+  list.innerHTML='';
+  if(data.length===0){
+    list.innerHTML='<div class="empty-state"><i class="bi bi-folder2-open"></i><p>This folder is empty</p></div>';
     return;
   }
-  const data = await res.json();
-  const tbody = document.querySelector("#fileTable tbody");
-  tbody.innerHTML = "";
-  data.forEach(f => {
-    const tr = document.createElement("tr");
-    tr.className = "item";
-    tr.dataset.name = f.name.toLowerCase();
-    tr.onclick = () => {
-      selected = { ...f, path: f.path.replace(/\\/g, "/") };
-      document.querySelectorAll('.item').forEach(i => i.style.background='');
-      tr.style.background = '#eef';
+  data.forEach((f,i)=>{
+    const row=document.createElement('div');
+    row.className='file-row';
+    row.style.animationDelay=`${i*0.03}s`;
+    row.dataset.name=f.name.toLowerCase();
+    row.dataset.index=i;
+    const p=f.path.replace(/\\/g,'/');
+    const iconClass=f.is_folder?'folder':getFileClass(f.name);
+    const iconName=f.is_folder?'bi-folder-fill':getFileIcon(f.name);
+    const dlBtn=!f.is_folder?`<button class="btn btn-icon btn-sm" title="Download" onclick="event.stopPropagation();downloadFile('${p}')"><i class="bi bi-download"></i></button>`:'';
+    row.innerHTML=`
+      <div class="name-cell">
+        <label class="row-chk-wrap" onclick="event.stopPropagation()">
+          <input type="checkbox" class="row-chk" tabindex="-1">
+        </label>
+        <div class="icon ${iconClass}"><i class="bi ${iconName}"></i></div>
+        <span class="name-text">${f.name}</span>
+      </div>
+      <div class="meta">${f.is_folder?'\u2014':formatBytes(f.size)}</div>
+      <div class="meta">${new Date(f.modified).toLocaleString()}</div>
+      <div class="actions-cell">${dlBtn}</div>`;
+
+    row.onclick=(e)=>{
+      const item={...f,path:p};
+      if(e.ctrlKey){
+        const idx=selectedItems.findIndex(s=>s.path===p);
+        if(idx>=0){selectedItems.splice(idx,1);row.classList.remove('selected');}
+        else{selectedItems.push(item);row.classList.add('selected');}
+        selected=selectedItems.length?selectedItems[selectedItems.length-1]:null;
+        lastClickIndex=i;
+      } else if(e.shiftKey && lastClickIndex>=0){
+        const start=Math.min(lastClickIndex,i), end=Math.max(lastClickIndex,i);
+        selectedItems=[];
+        document.querySelectorAll('.file-row').forEach(r=>r.classList.remove('selected'));
+        for(let j=start;j<=end;j++){
+          const ri=renderedItems[j];
+          if(ri){selectedItems.push({...ri,path:ri.path.replace(/\\/g,'/')});}
+          const rowEl=list.children[j];
+          if(rowEl)rowEl.classList.add('selected');
+        }
+        selected=item;
+      } else {
+        selectedItems=[item];
+        selected=item;
+        document.querySelectorAll('.file-row').forEach(r=>r.classList.remove('selected'));
+        row.classList.add('selected');
+        lastClickIndex=i;
+      }
+      syncCheckboxes();
+      updateSelectionStatus();
+    };
+    row.ondblclick=()=>{if(f.is_folder)loadFolder(p);};
+    row.oncontextmenu=(e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const item={...f,path:p};
+      if(!selectedItems.find(s=>s.path===p)){
+        selectedItems=[item]; selected=item;
+        document.querySelectorAll('.file-row').forEach(r=>r.classList.remove('selected'));
+        row.classList.add('selected');
+      } else { selected=item; }
+      syncCheckboxes();
+      updateSelectionStatus();
+      showContextMenu(e.clientX,e.clientY);
     };
 
-    tr.ondblclick = () => {
-      if (f.is_folder) loadFolder(f.path.replace(/\\/g, "/"));
-    };
+    // ── Internal drag (multi) ──
+    row.draggable = true;
+    row.addEventListener('dragstart', (e) => {
+      e.stopPropagation();
+      const item={...f,path:p};
+      if(!selectedItems.find(s=>s.path===p)){selectedItems=[item];selected=item;}
+      const paths=selectedItems.map(s=>s.path);
+      e.dataTransfer.setData('application/x-simpledrive', JSON.stringify(paths));
+      e.dataTransfer.effectAllowed = 'copyMove';
+      row.classList.add('dragging');
+    });
+    row.addEventListener('dragend', () => { row.classList.remove('dragging'); });
 
-    const icon = f.is_folder ? '<i class="bi bi-folder-fill"></i>' : getFileIcon(f.name);
-    const downloadBtn = !f.is_folder ? `<button title="Download" onclick="event.stopPropagation(); downloadFile('${f.path.replace(/\\/g, "/")}')"><i class="bi bi-download"></i></button>` : '';
-    tr.innerHTML = `
-      <td>${icon} ${f.name}</td>
-      <td>${f.is_folder ? '-' : formatBytes(f.size)}</td>
-      <td>${new Date(f.modified).toLocaleString()}</td>
-      <td>${downloadBtn}</td>
-    `;
-
-
-
-
-
-    tbody.appendChild(tr);
-  });
-  renderBreadcrumb(path);
-}
-
-document.addEventListener('keydown', function(e) {
-  // Ignore input fields
-  const active = document.activeElement;
-  if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
-
-  if (e.ctrlKey && e.key === 'c') {
-    e.preventDefault();
-    doCopy();
-    showToast("Copied");
-    updateStatusBar("Copied | <i class='bi bi-files'></i> " + (selected?.name || ""));
-  }
-
-  if (e.ctrlKey && e.key === 'x') {
-    e.preventDefault();
-    doCut();
-    showToast("Cut");
-    updateStatusBar("Cutted | <i class='bi bi-scissors'></i>  " + (selected?.name || ""));
-  }
-
-  if (e.ctrlKey && e.key === 'v') {
-    e.preventDefault();
-    doPaste();
-    showToast("Pasted");
-    updateStatusBar("Pasted to  | <i class='bi bi-clipboard-plus'></i> " + currentPath);
-  }
-
-  if (e.key === 'Delete') {
-    e.preventDefault();
-    deleteSelected();
-  }
-
-  if (e.key === 'Backspace') {
-    e.preventDefault();
-    goBack();
-  }
-});
-
-
-function filterTable() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  document.querySelectorAll("#fileTable tbody .item").forEach(row => {
-    const name = row.dataset.name || "";
-    row.style.display = name.includes(q) ? "" : "none";
-  });
-}
-
-function renderBreadcrumb(path) {
-  const crumbs = path.replace(/\\/g, "/").split('/').filter(Boolean);
-  let html = '<a href="#" onclick="loadFolder(\'\')">Home</a>';
-  let acc = "";
-  for (const c of crumbs) {
-    acc += "/" + c;
-    html += ` <span>›</span> <a href="#" onclick="loadFolder('${acc.slice(1)}')">${c}</a>`;
-  }
-  document.getElementById("breadcrumb").innerHTML = html;
-}
-
-
-
-
-function promptNewFolder() {
-  const name = prompt("Folder name?");
-  if (!name) return;
-  fetch("/folders", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({path: currentPath, name})
-  }).then(res => res.json()).then(() => loadFolder(currentPath));
-}
-
-function doCopy() {
-  if (!selected) return alert("Select item first");
-  clipboard = { src: selected.path, op: "copy" };
-  updateStatusBar("Copied " + selected.name);
-}
-
-function doCut() {
-  if (!selected) return alert("Select item first");
-  clipboard = { src: selected.path, op: "cut" };
-  updateStatusBar("Cutted " + selected.name);
-}
-
-function doPaste() {
-  if (!clipboard) return alert("Nothing to paste");
-  fetch("/operate", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ ...clipboard, dest: currentPath })
-  }).then(() => {
-    clipboard = null;
-    loadFolder(currentPath);
-  });
-  updateStatusBar("Pasted " + selected.name);
-}
-
-function deleteSelected() {
-  if (!selected) return;
-  if (!confirm(`Delete ${selected.name}?`)) return;
-  fetch(`/items?path=${encodeURIComponent(selected.path)}`, {
-    method: "DELETE"
-  }).then(() => loadFolder(currentPath));
-  updateStatusBar("Deleted " + selected.name);
-}
-
-// === multi-file upload handler (sequential with per-file progress) ===
-const form = document.getElementById('uploadForm');
-const progress = document.getElementById('uploadProgress');
-const status = document.getElementById('uploadStatus');
-const cancelBtn = document.getElementById('cancelBtn');
-
-let activeXhrs = []; // array of XHRs for cancellation
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const files = form.file.files;
-  if (!files || files.length === 0) return;
-
-  // UI setup
-  progress.style.display = 'block';
-  progress.value = 0;
-  cancelBtn.style.display = 'inline';
-  status.innerHTML = ''; // will contain per-file lines
-  activeXhrs = [];
-
-  // container for per-file progress elements
-  const fileStatusList = document.createElement('div');
-  fileStatusList.style.marginTop = '8px';
-  status.appendChild(fileStatusList);
-
-  // Upload files one-by-one (sequential) so we can show per-file progress easily.
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const fileLine = document.createElement('div');
-    fileLine.style.margin = '6px 0';
-    fileLine.innerHTML = `<strong>${file.name}</strong> — <span class="fs">Queued</span>`;
-    const perProgress = document.createElement('progress');
-    perProgress.max = 100;
-    perProgress.value = 0;
-    perProgress.style.display = 'block';
-    perProgress.style.width = '100%';
-    fileLine.appendChild(perProgress);
-    fileStatusList.appendChild(fileLine);
-
-    try {
-      await uploadSingleFile(file, perProgress, fileLine, i, files.length);
-    } catch (err) {
-      // uploadSingleFile rejects on abort or fatal error
-      fileLine.querySelector('.fs').textContent = err === 'aborted' ? 'Canceled' : 'Error';
+    // ── Internal drop target (folders only, multi) ──
+    if(f.is_folder){
+      row.addEventListener('dragover', (e) => {
+        if(e.dataTransfer.types.includes('application/x-simpledrive')){
+          e.preventDefault(); e.stopPropagation();
+          e.dataTransfer.dropEffect = e.ctrlKey ? 'copy' : 'move';
+          row.classList.add('drop-target');
+        }
+      });
+      row.addEventListener('dragleave', () => { row.classList.remove('drop-target'); });
+      row.addEventListener('drop', async(e) => {
+        e.preventDefault(); e.stopPropagation();
+        row.classList.remove('drop-target');
+        let paths=[];
+        try{paths=JSON.parse(e.dataTransfer.getData('application/x-simpledrive'));}catch(ex){return;}
+        if(!paths.length)return;
+        paths=paths.filter(sp=>sp!==p);
+        const op = e.ctrlKey ? 'copy' : 'cut';
+        for(const sp of paths){
+          await fetch('/operate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({src:sp,dest:p,op:op})});
+        }
+        loadFolder(currentPath);
+        showToast(`${op==='copy'?'Copied':'Moved'} ${paths.length} item(s) to ${f.name}`,'success');
+      });
     }
 
-    // update overall progress (simple average of file progresses)
-    const totalPercent = Array.from(fileStatusList.querySelectorAll('progress'))
-      .reduce((acc, p) => acc + Number(p.value), 0) / files.length;
-    progress.value = totalPercent;
-  }
-
-  // done
-  progress.style.display = 'none';
-  cancelBtn.style.display = 'none';
-  activeXhrs = [];
-  // reload current folder to show uploaded files
-  loadFolder(currentPath);
-  // clear file input
-  form.reset();
-});
-
-function uploadSingleFile(file, perProgressEl, fileLine, index, total) {
-  return new Promise((resolve, reject) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('path', currentPath || '');
-
-    const xhr = new XMLHttpRequest();
-    activeXhrs.push(xhr);
-
-    xhr.open('POST', '/upload', true);
-
-    let lastLoaded = 0;
-    let lastTime = performance.now();
-
-    xhr.upload.onprogress = function(e) {
-      if (e.lengthComputable) {
-        const percent = e.loaded / e.total * 100;
-        perProgressEl.value = percent;
-        // speed estimate per-file
-        const now = performance.now();
-        const deltaTime = (now - lastTime) / 1000;
-        const deltaBytes = e.loaded - lastLoaded;
-        const speed = deltaTime > 0 ? (deltaBytes / deltaTime / 1048576) : 0;
-        fileLine.querySelector('.fs').textContent = `Uploading: ${percent.toFixed(1)}% | ${formatBytes(e.loaded)} of ${formatBytes(e.total)} | ${speed.toFixed(2)} MB/s`;
-        lastLoaded = e.loaded;
-        lastTime = now;
-      }
-    };
-
-    xhr.onload = function() {
-      // remove xhr from active list
-      const idx = activeXhrs.indexOf(xhr);
-      if (idx >= 0) activeXhrs.splice(idx, 1);
-
-      try {
-        const res = JSON.parse(xhr.responseText || '{}');
-        if (xhr.status === 201 || xhr.status === 200) {
-          perProgressEl.value = 100;
-          fileLine.querySelector('.fs').textContent = 'Done';
-          resolve(res);
-        } else {
-          fileLine.querySelector('.fs').textContent = res.error || 'Upload failed';
-          reject('error');
-        }
-      } catch (err) {
-        fileLine.querySelector('.fs').textContent = 'Upload failed (invalid response)';
-        reject('error');
-      }
-    };
-
-    xhr.onerror = function() {
-      const idx = activeXhrs.indexOf(xhr);
-      if (idx >= 0) activeXhrs.splice(idx, 1);
-      fileLine.querySelector('.fs').textContent = 'Upload error';
-      reject('error');
-    };
-
-    xhr.onabort = function() {
-      const idx = activeXhrs.indexOf(xhr);
-      if (idx >= 0) activeXhrs.splice(idx, 1);
-      fileLine.querySelector('.fs').textContent = 'Canceled';
-      reject('aborted');
-    };
-
-    xhr.send(formData);
+    list.appendChild(row);
   });
 }
 
-// Cancel whole batch
-cancelBtn.onclick = () => {
-  if (!activeXhrs.length) return;
-  activeXhrs.forEach(x => {
-    try { x.abort(); } catch (e) {}
+function updateSelectionStatus(){
+  const n=selectedItems.length;
+  document.getElementById('statusText').textContent = n>0
+    ? `${n} item(s) selected`
+    : 'Ready';
+  document.getElementById('itemCount').textContent = n>0
+    ? `${n} of ${renderedItems.length} selected`
+    : `${renderedItems.length} items`;
+}
+
+function syncCheckboxes(){
+  document.querySelectorAll('.file-row').forEach(row=>{
+    const chk=row.querySelector('.row-chk');
+    if(chk) chk.checked=row.classList.contains('selected');
   });
-  activeXhrs = [];
-  progress.style.display = 'none';
-  cancelBtn.style.display = 'none';
-  document.getElementById('uploadStatus').textContent = 'Upload canceled';
+}
+
+function onRowCheckChange(e, idx){
+  e.stopPropagation();
+  const row=e.target.closest('.file-row');
+  const item=renderedItems[idx];
+  if(!item)return;
+  const p=item.path.replace(/\\/g,'/');
+  const fullItem={...item,path:p};
+  if(e.target.checked){
+    if(!selectedItems.find(s=>s.path===p)) selectedItems.push(fullItem);
+    row.classList.add('selected');
+  } else {
+    selectedItems=selectedItems.filter(s=>s.path!==p);
+    row.classList.remove('selected');
+  }
+  selected=selectedItems.length?selectedItems[selectedItems.length-1]:null;
+  lastClickIndex=idx;
+  updateSelectionStatus();
+}
+
+function clearSelection(){
+  selectedItems=[];selected=null;lastClickIndex=-1;
+  document.querySelectorAll('.file-row').forEach(r=>r.classList.remove('selected'));
+  syncCheckboxes();
+  updateSelectionStatus();
+}
+
+function selectAll(){
+  selectedItems=renderedItems.map(f=>({...f,path:f.path.replace(/\\/g,'/')}));
+  selected=selectedItems.length?selectedItems[0]:null;
+  document.querySelectorAll('.file-row').forEach(r=>r.classList.add('selected'));
+  syncCheckboxes();
+  updateSelectionStatus();
+}
+
+/* ─── Lasso / Rubber-band selection ─── */
+(function(){
+  const area = document.getElementById('fileArea');
+  let lasso = null, startX=0, startY=0, scrollTopStart=0;
+  let lassoActive=false;
+
+  // Click on empty area → deselect
+  area.addEventListener('mousedown', e=>{
+    if(e.button!==0) return;
+    const hit=e.target.closest('.file-row');
+    if(hit) return; // clicked on a row — let row handle it
+    // Start lasso
+    const rect=area.getBoundingClientRect();
+    startX=e.clientX-rect.left;
+    startY=e.clientY-rect.top+area.scrollTop;
+    scrollTopStart=area.scrollTop;
+    lassoActive=true;
+    // Create lasso box
+    lasso=document.createElement('div');
+    lasso.id='lasso-box';
+    lasso.style.cssText=`position:absolute;border:1.5px solid var(--accent);background:var(--accent-glow);
+      pointer-events:none;z-index:100;border-radius:3px;left:${startX}px;top:${startY-scrollTopStart}px;width:0;height:0;`;
+    area.style.position='relative';
+    area.appendChild(lasso);
+    // deselect unless Ctrl held
+    if(!e.ctrlKey){ clearSelection(); }
+  });
+
+  document.addEventListener('mousemove', e=>{
+    if(!lassoActive||!lasso) return;
+    const rect=area.getBoundingClientRect();
+    const curX=e.clientX-rect.left;
+    const curY=e.clientY-rect.top+area.scrollTop;
+    const x=Math.min(startX,curX), y=Math.min(startY,curY);
+    const w=Math.abs(curX-startX), h=Math.abs(curY-startY);
+    lasso.style.left=x+'px';
+    lasso.style.top=(y-area.scrollTop)+'px';
+    lasso.style.width=w+'px';
+    lasso.style.height=h+'px';
+    // Hit-test rows
+    if(!e.ctrlKey){
+      selectedItems=[];selected=null;
+      document.querySelectorAll('.file-row').forEach(r=>r.classList.remove('selected'));
+    }
+    const lassoRect={left:x,top:y,right:x+w,bottom:y+h};
+    document.querySelectorAll('.file-row').forEach((row,idx)=>{
+      const rr=row.getBoundingClientRect();
+      const areaRect=area.getBoundingClientRect();
+      const rowTop=rr.top-areaRect.top+area.scrollTop;
+      const rowBot=rr.bottom-areaRect.top+area.scrollTop;
+      const rowL=rr.left-areaRect.left;
+      const rowR=rr.right-areaRect.left;
+      const overlap=!(rowL>lassoRect.right||rowR<lassoRect.left||rowTop>lassoRect.bottom||rowBot<lassoRect.top);
+      const item=renderedItems[idx];
+      if(!item) return;
+      const p=item.path.replace(/\\/g,'/');
+      if(overlap){
+        row.classList.add('selected');
+        if(!selectedItems.find(s=>s.path===p)) selectedItems.push({...item,path:p});
+      } else if(!e.ctrlKey){
+        row.classList.remove('selected');
+        selectedItems=selectedItems.filter(s=>s.path!==p);
+      }
+    });
+    selected=selectedItems.length?selectedItems[selectedItems.length-1]:null;
+    syncCheckboxes();
+    updateSelectionStatus();
+  });
+
+  document.addEventListener('mouseup', e=>{
+    if(!lassoActive) return;
+    lassoActive=false;
+    if(lasso){lasso.remove();lasso=null;}
+  });
+})();
+
+function renderBreadcrumb(path){
+  const crumbs=path.replace(/\\/g,'/').split('/').filter(Boolean);
+  let html='<a href="#" onclick="loadFolder(\'\')"><i class="bi bi-house-door"></i> Home</a>';
+  let acc="";
+  for(const c of crumbs){acc+="/"+c;html+=` <span class="sep"><i class="bi bi-chevron-right"></i></span> <a href="#" onclick="loadFolder('${acc.slice(1)}')">${c}</a>`;}
+  document.getElementById('breadcrumb').innerHTML=html;
+}
+
+function goBack(){
+  if(!currentPath)return;
+  const parts=currentPath.replace(/\\/g,'/').split('/').filter(Boolean);
+  parts.pop();
+  loadFolder(parts.join('/'));
+}
+
+/* ═══════════════════ FILTER / SORT / VIEW ═══════════════════ */
+const FILE_CATEGORIES = {
+  image: ["jpg","jpeg","png","gif","bmp","svg","webp","ico","tiff"],
+  document: ["pdf","doc","docx","xls","xlsx","csv","txt","md","log","ppt","pptx","rtf"],
+  archive: ["zip","rar","7z","tar","gz","bak","iso"],
+  code: ["html","js","py","java","c","cpp","cs","php","json","xml","css","sql","sh","ps1","bat","yaml","yml"],
+  media: ["mp3","wav","flac","aac","ogg","mp4","avi","mkv","mov","wmv","webm"]
 };
 
-document.getElementById('cancelBtn').onclick = () => {
-  if (currentXHR) currentXHR.abort();
-  document.getElementById('uploadProgress').style.display = 'none';
-  document.getElementById('cancelBtn').style.display = 'none';
-  document.getElementById('uploadStatus').textContent = 'Upload canceled';
-};
+function getCategory(name){
+  const ext=name.split('.').pop().toLowerCase();
+  for(const[cat,exts] of Object.entries(FILE_CATEGORIES)) if(exts.includes(ext)) return cat;
+  return 'other';
+}
 
+let currentView = localStorage.getItem('viewMode') || 'list';
+if(currentView==='grid') document.addEventListener('DOMContentLoaded',()=>applyViewMode());
+
+function applyFilterSort(){
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const filterType = document.getElementById('filterType').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  let filtered = allItems.filter(f => {
+    // Search
+    if(query && !f.name.toLowerCase().includes(query)) return false;
+    // Type filter
+    if(filterType === 'all') return true;
+    if(filterType === 'folder') return f.is_folder;
+    if(f.is_folder) return false; // non-folder filters exclude folders
+    return getCategory(f.name) === filterType;
+  });
+
+  // Sort
+  const [field, dir] = sortBy.split('-');
+  const mul = dir === 'asc' ? 1 : -1;
+  filtered.sort((a, b) => {
+    // Folders always first
+    if(a.is_folder !== b.is_folder) return a.is_folder ? -1 : 1;
+    if(field === 'name') return mul * a.name.localeCompare(b.name, undefined, {sensitivity:'base'});
+    if(field === 'size') return mul * (a.size - b.size);
+    if(field === 'date') return mul * (new Date(a.modified) - new Date(b.modified));
+    return 0;
+  });
+
+  renderFiles(filtered);
+  document.getElementById('itemCount').textContent = `${filtered.length} of ${allItems.length} items`;
+}
+
+function toggleView(){
+  currentView = currentView === 'list' ? 'grid' : 'list';
+  localStorage.setItem('viewMode', currentView);
+  applyViewMode();
+  applyFilterSort();
+}
+
+function applyViewMode(){
+  const btn = document.getElementById('viewToggle');
+  const area = document.getElementById('fileList');
+  const header = document.getElementById('fileHeader');
+  if(currentView === 'grid'){
+    btn.innerHTML = '<i class="bi bi-list-ul"></i>';
+    area.classList.add('grid-view');
+    header.style.display = 'none';
+  } else {
+    btn.innerHTML = '<i class="bi bi-grid"></i>';
+    area.classList.remove('grid-view');
+    header.style.display = '';
+  }
+}
+
+/* ═══════════════════ CONTEXT MENU ═══════════════════ */
+function showContextMenu(x,y){
+  const m=document.getElementById('ctxMenu');
+  m.style.left=Math.min(x,window.innerWidth-220)+'px';
+  m.style.top=Math.min(y,window.innerHeight-250)+'px';
+  m.classList.add('show');
+}
+function hideContextMenu(){ document.getElementById('ctxMenu').classList.remove('show'); }
+function ctxAction(fn){ hideContextMenu(); setTimeout(fn, 50); }
+document.addEventListener('mousedown',(e)=>{
+  const menu=document.getElementById('ctxMenu');
+  if(!menu.contains(e.target)) hideContextMenu();
+});
+
+/* ═══════════════════ FILE OPS ═══════════════════ */
+function downloadFile(path){window.open(`/download/${encodeURIComponent(path)}`,'_blank');}
+function downloadSelected(){if(selected&&!selected.is_folder)downloadFile(selected.path);else showToast('Select a file to download','error');}
+
+function promptNewFolder(){openModal('folderModal');setTimeout(()=>document.getElementById('folderName').focus(),100);}
+function createFolder(e){
+  e.preventDefault();
+  const name=document.getElementById('folderName').value;
+  fetch('/folders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:currentPath,name})})
+  .then(r=>r.json()).then(()=>{closeModal('folderModal');document.getElementById('folderName').value='';loadFolder(currentPath);showToast('Folder created','success');});
+}
+
+function doCopy(){
+  if(!selectedItems.length)return showToast('Select item(s) first','error');
+  clipboard={items:selectedItems.map(s=>s.path),op:'copy'};
+  showToast(`Copied ${selectedItems.length} item(s)`,'info');
+}
+function doCut(){
+  if(!selectedItems.length)return showToast('Select item(s) first','error');
+  clipboard={items:selectedItems.map(s=>s.path),op:'cut'};
+  showToast(`Cut ${selectedItems.length} item(s)`,'info');
+}
+async function doPaste(){
+  if(!clipboard||!clipboard.items.length)return showToast('Nothing in clipboard','error');
+  for(const src of clipboard.items){
+    await fetch('/operate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({src:src,dest:currentPath,op:clipboard.op})});
+  }
+  const n=clipboard.items.length;
+  clipboard=null;loadFolder(currentPath);showToast(`Pasted ${n} item(s)`,'success');
+}
+async function deleteSelected(){
+  if(!selectedItems.length)return;
+  const n=selectedItems.length;
+  if(!confirm(`Delete ${n} item(s)?`))return;
+  for(const item of selectedItems){
+    await fetch(`/items?path=${encodeURIComponent(item.path)}`,{method:'DELETE'});
+  }
+  selectedItems=[];selected=null;
+  loadFolder(currentPath);showToast(`Deleted ${n} item(s)`,'success');
+}
+function renameSelected(){
+  if(!selected)return showToast('Select an item first','error');
+  document.getElementById('renameInput').value=selected.name;
+  openModal('renameModal');
+  setTimeout(()=>{
+    const inp=document.getElementById('renameInput');
+    // select just the base name (without extension) for convenience
+    const dotIdx=!selected.is_folder?selected.name.lastIndexOf('.'):-1;
+    inp.focus();
+    inp.setSelectionRange(0, dotIdx>0?dotIdx:selected.name.length);
+  },120);
+}
+async function submitRename(e){
+  e.preventDefault();
+  const newName=document.getElementById('renameInput').value.trim();
+  if(!newName||newName===selected.name){closeModal('renameModal');return;}
+  const res=await fetch('/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({src:selected.path,name:newName})});
+  if(res.ok){
+    closeModal('renameModal');
+    loadFolder(currentPath);
+    showToast('Renamed successfully','success');
+  } else {
+    const err=await res.json();
+    showToast(err.error||'Rename failed','error');
+  }
+}
+
+/* ═══════════════════ UPLOAD (drag & drop + button) ═══════════════════ */
+document.getElementById('fileInput').addEventListener('change',function(){if(this.files.length)uploadFiles(this.files);this.value='';});
+
+// Drag & Drop (external files only — skip internal drags)
+const fileArea=document.getElementById('fileArea');
+const dropOverlay=document.getElementById('dropOverlay');
+let dragCounter=0;
+function isExternalDrag(e){ return e.dataTransfer.types.includes('Files') && !e.dataTransfer.types.includes('application/x-simpledrive'); }
+document.addEventListener('dragenter',e=>{e.preventDefault();if(!isExternalDrag(e))return;dragCounter++;dropOverlay.classList.add('active');});
+document.addEventListener('dragleave',e=>{e.preventDefault();if(!isExternalDrag(e))return;dragCounter--;if(dragCounter<=0){dragCounter=0;dropOverlay.classList.remove('active');}});
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{
+  e.preventDefault();dragCounter=0;dropOverlay.classList.remove('active');
+  if(e.dataTransfer.types.includes('application/x-simpledrive'))return; // handled by row drop
+  if(e.dataTransfer.files.length)uploadFiles(e.dataTransfer.files);
+});
+
+function uploadFiles(files){
+  const panel=document.getElementById('uploadPanel');
+  const list=document.getElementById('uploadList');
+  panel.classList.add('visible');
+  list.innerHTML='';
+  activeXhrs=[];
+
+  (async()=>{
+    for(let i=0;i<files.length;i++){
+      const file=files[i];
+      const item=document.createElement('div');
+      item.className='upload-item';
+      item.innerHTML=`<div class="upload-info"><div class="upload-name">${file.name}</div><div class="upload-meta">Waiting...</div><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div></div>`;
+      list.appendChild(item);
+      try{await uploadSingle(file,item);}catch(e){item.querySelector('.upload-meta').textContent=e==='aborted'?'Cancelled':'Error';}
+    }
+    setTimeout(()=>{panel.classList.remove('visible');loadFolder(currentPath);showToast('Upload complete','success');},1500);
+  })();
+}
+
+function uploadSingle(file,item){
+  return new Promise((resolve,reject)=>{
+    const fd=new FormData();fd.append('file',file);fd.append('path',currentPath||'');
+    const xhr=new XMLHttpRequest();activeXhrs.push(xhr);
+    xhr.open('POST','/upload',true);
+    let lastLoaded=0,lastTime=performance.now();
+    xhr.upload.onprogress=function(e){
+      if(e.lengthComputable){
+        const pct=e.loaded/e.total*100;
+        item.querySelector('.progress-fill').style.width=pct+'%';
+        const now=performance.now(),dt=(now-lastTime)/1000,db=e.loaded-lastLoaded;
+        const speed=dt>0?(db/dt/1048576):0;
+        item.querySelector('.upload-meta').textContent=`${pct.toFixed(0)}% — ${formatBytes(e.loaded)}/${formatBytes(e.total)} — ${speed.toFixed(1)} MB/s`;
+        lastLoaded=e.loaded;lastTime=now;
+      }
+    };
+    xhr.onload=function(){
+      activeXhrs=activeXhrs.filter(x=>x!==xhr);
+      if(xhr.status===201||xhr.status===200){item.querySelector('.upload-meta').textContent='Done ✓';item.querySelector('.progress-fill').style.width='100%';resolve();}
+      else{item.querySelector('.upload-meta').textContent='Failed';reject('error');}
+    };
+    xhr.onerror=function(){activeXhrs=activeXhrs.filter(x=>x!==xhr);reject('error');};
+    xhr.onabort=function(){activeXhrs=activeXhrs.filter(x=>x!==xhr);reject('aborted');};
+    xhr.send(fd);
+  });
+}
+
+function cancelAllUploads(){activeXhrs.forEach(x=>{try{x.abort();}catch(e){}});activeXhrs=[];document.getElementById('uploadPanel').classList.remove('visible');showToast('Upload cancelled','error');}
+
+/* ═══════════════════ KEYBOARD ═══════════════════ */
+document.addEventListener('keydown',function(e){
+  const a=document.activeElement;
+  if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.tagName==='SELECT'))return;
+  if(e.ctrlKey&&e.key==='a'){e.preventDefault();selectAll();}
+  if(e.ctrlKey&&e.key==='c'){e.preventDefault();doCopy();}
+  if(e.ctrlKey&&e.key==='x'){e.preventDefault();doCut();}
+  if(e.ctrlKey&&e.key==='v'){e.preventDefault();doPaste();}
+  if(e.key==='Delete'){e.preventDefault();deleteSelected();}
+  if(e.key==='Backspace'){e.preventDefault();goBack();}
+  if(e.key==='F2'){e.preventDefault();renameSelected();}
+  if(e.key==='Escape'){clearSelection();}
+});
+
+/* ═══════════════════ AUTH: CHANGE PASSWORD ═══════════════════ */
+async function changePassword(e){
+  e.preventDefault();
+  const res=await fetch('/api/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({old_password:document.getElementById('oldPassword').value,new_password:document.getElementById('newPasswordField').value})});
+  if(res.ok){closeModal('passwordModal');showToast('Password changed!','success');document.getElementById('oldPassword').value='';document.getElementById('newPasswordField').value='';}
+  else{const err=await res.json();showToast(err.error||'Failed','error');}
+}
+
+/* ═══════════════════ ADMIN: USER MGMT ═══════════════════ */
+async function loadUsers(){
+  const res=await fetch('/api/users');if(!res.ok)return;
+  const users=await res.json();
+  const tbody=document.querySelector('#userTable tbody');tbody.innerHTML='';
+  users.forEach(u=>{
+    tbody.innerHTML+=`<tr><td>${u.id}</td><td>${u.username}</td><td><span class="role-tag">${u.role}</span></td><td class="api-key-cell" title="${u.api_key}">${u.api_key}</td><td><button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id})"><i class="bi bi-trash3"></i></button></td></tr>`;
+  });
+}
+async function createUser(e){
+  e.preventDefault();
+  const res=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('newUsername').value,password:document.getElementById('newUserPass').value,role:document.getElementById('newRole').value})});
+  if(res.ok){document.getElementById('newUsername').value='';document.getElementById('newUserPass').value='';loadUsers();showToast('User created','success');}
+  else{const err=await res.json();showToast(err.error||'Failed','error');}
+}
+async function deleteUser(id){
+  if(!confirm('Delete this user?'))return;
+  const res=await fetch('/api/users/'+id,{method:'DELETE'});
+  if(res.ok){loadUsers();showToast('User deleted','success');}
+  else{const err=await res.json();showToast(err.error||'Failed','error');}
+}
+
+/* ═══════════════════ THEME ═══════════════════ */
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  localStorage.setItem('theme',isDark?'light':'dark');
+}
+// Apply saved theme on load (default = light)
+(function(){
+  const saved=localStorage.getItem('theme')||'light';
+  if(saved==='dark')document.documentElement.setAttribute('data-theme','dark');
+})();
+
+/* ═══════════════════ INIT ═══════════════════ */
 loadFolder();
 </script>
 </body>

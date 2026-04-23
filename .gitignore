@@ -2,5 +2,7 @@
 venv/
 uploads/
 script_ps/
+data/
+__pycache__/
 
 db.json         
